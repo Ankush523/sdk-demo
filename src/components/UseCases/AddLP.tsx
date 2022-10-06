@@ -26,7 +26,7 @@ const AddLP: React.FC = () => {
     }[]
   >([]);
   // const [txnArray, setTxnArray] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchFeeOption = async () => {
@@ -92,35 +92,35 @@ const AddLP: React.FC = () => {
       console.log(pmtArr);
       setIsLoading(false);
     };
-    fetchFeeOption();
+    // fetchFeeOption();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [provider]);
 
   const makeTx = async () => {
     if (!wallet || !walletState || !web3Provider) return;
     try {
-      const relayer = new RestRelayer({
+      /*const relayer = new RestRelayer({
         url: "https://sdk-relayer.staging.biconomy.io/api/v1/relay",
-      });
+      });*/
 
       // to do transaction on smart account we need to set relayer
       let smartAccount = wallet;
-      smartAccount.setRelayer(relayer);
+      /*smartAccount.setRelayer(relayer);
       showInfoMessage("Setting Relayer");
 
       // currently step 1 building wallet transaction
-      const txs = [];
+      const txs = [];*/
 
       const usdcContract = new ethers.Contract(
         config.usdc.address,
         config.usdc.abi,
         web3Provider
       );
-      const hyphenContract = new ethers.Contract(
+      /*const hyphenContract = new ethers.Contract(
         config.hyphenLP.address,
         config.hyphenLP.abi,
         web3Provider
-      );
+      );*/
 
       const approveUSDCTx = await usdcContract.populateTransaction.approve(
         config.hyphenLP.address,
@@ -130,9 +130,10 @@ const AddLP: React.FC = () => {
         to: config.usdc.address,
         data: approveUSDCTx.data,
       };
-      txs.push(tx1);
 
-      const hyphenLPTx =
+      const response = await smartAccount.sendGasLessTransaction({transaction: tx1});
+
+      /*const hyphenLPTx =
         await hyphenContract.populateTransaction.addTokenLiquidity(
           config.usdc.address,
           ethers.BigNumber.from("1000000")
@@ -192,7 +193,7 @@ const AddLP: React.FC = () => {
         // Emitted when the transaction has been mined
         console.log("txn_mined:", transaction);
         showSuccessMessage(`Transaction mined: ${txHash}`);
-      });
+      });*/
     } catch (err: any) {
       console.error(err);
       showErrorMessage(err.message || "Error in sending the transaction");
@@ -224,22 +225,6 @@ const AddLP: React.FC = () => {
       </ul>
 
       <h3 className={classes.h3Title}>Available Fee options</h3>
-
-      {isLoading && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            margin: "0 0 40px 30px",
-          }}
-        >
-          <CircularProgress
-            color="secondary"
-            style={{ width: 25, height: 25, marginRight: 10, color: "#fff" }}
-          />{" "}
-          {" Loading Fee Options"}
-        </div>
-      )}
 
       <ul>
         {payment.map((token, ind) => (
