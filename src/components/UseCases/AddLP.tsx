@@ -15,6 +15,8 @@ import {
   showErrorMessage,
 } from "../../utils";
 
+const iFace = new ethers.utils.Interface(config.usdc.abi);
+
 const AddLP: React.FC = () => {
   const classes = useStyles();
   const { provider, web3Provider } = useWeb3AuthContext();
@@ -122,17 +124,42 @@ const AddLP: React.FC = () => {
         web3Provider
       );*/
 
-      const approveUSDCTx = await usdcContract.populateTransaction.approve(
-        config.hyphenLP.address,
-        ethers.BigNumber.from("1000000"),
-        {from: smartAccount.address}
-      );
+
+      const txs = []
+
+      const approveCallData = iFace.encodeFunctionData('approve', [config.hyphenLP.address, ethers.BigNumber.from("1000000")])
       const tx1 = {
         to: config.usdc.address,
-        data: approveUSDCTx.data,
+        data: approveCallData,
       };
 
-      const response = await smartAccount.sendGasLessTransaction({transaction: tx1});
+      txs.push(tx1)
+
+      const hyphenContract = new ethers.Contract(
+        config.hyphenLP.address,
+        config.hyphenLP.abi,
+        web3Provider
+      );
+
+      const hyphenLPTx =
+        await hyphenContract.populateTransaction.addTokenLiquidity(
+          config.usdc.address,
+          ethers.BigNumber.from("1000000")
+        );
+
+      const tx2 = {
+        to: config.hyphenLP.address,
+        data: hyphenLPTx.data,
+      };
+
+
+      txs.push(tx2);
+
+
+      const response = await smartAccount.sendGaslessTransactionBatch({transactions: txs});
+
+      // const response = await smartAccount.deployWalletUsingPaymaster();
+      console.log(response)
 
       /*const hyphenLPTx =
         await hyphenContract.populateTransaction.addTokenLiquidity(
