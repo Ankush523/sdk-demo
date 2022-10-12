@@ -124,7 +124,8 @@ const AddLP: React.FC = () => {
 
       const approveUSDCTx = await usdcContract.populateTransaction.approve(
         config.hyphenLP.address,
-        ethers.BigNumber.from("1000000")
+        ethers.BigNumber.from("1000000"),
+        {from: smartAccount.address}
       );
       const tx1 = {
         to: config.usdc.address,
