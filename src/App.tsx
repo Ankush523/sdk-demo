@@ -10,11 +10,12 @@ import Button from "./components/Button";
 const App: React.FC = () => {
   const classes = useStyles();
   const {
-    connectWeb3,
     address,
+    connectWeb3,
     loading: eoaWalletLoading,
   } = useWeb3AuthContext();
   const { loading } = useSmartAccountContext();
+  // const rwaURL = `https://${process.env.REACT_APP_AUTH0_DOMAIN}/authorize?scope=openid&response_type=code&client_id=${process.env.REACT_APP_RWA_CLIENTID}&redirect_uri=${process.env.REACT_APP_BACKEND_SERVER_API}&state=STATE`;
 
   if (!address) {
     return (
@@ -28,16 +29,31 @@ const App: React.FC = () => {
         }}
       >
         <h1 className={classes.title}>Biconomy SDK Demo</h1>
+        {/* <Button
+        title="Get Started"
+        onClickFunc={connectWeb3}
+        isLoading={eoaWalletLoading}
+        style={{
+          fontSize: 20,
+          padding: "30px 20px",
+          border: 0,
+          background:
+            "linear-gradient(90deg, #0063FF -2.21%, #9100FF 89.35%)",
+        }}
+      /> */}
+
         <Button
-          title="Get Started"
+          title="Sign in with google"
+          onClickFunc={connectWeb3}
+          isLoading={eoaWalletLoading}
+        />
+
+        <Button
+          title="Sign in with Twitter"
           onClickFunc={connectWeb3}
           isLoading={eoaWalletLoading}
           style={{
-            fontSize: 20,
-            padding: "30px 20px",
-            border: 0,
-            background:
-              "linear-gradient(90deg, #0063FF -2.21%, #9100FF 89.35%)",
+            marginTop: 40
           }}
         />
         <ToastContainer />
