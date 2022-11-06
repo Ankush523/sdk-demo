@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { ToastContainer } from "react-toastify";
 import Navbar from "./components/Navbar";
@@ -6,14 +6,17 @@ import TabsBody from "./components/TabsBody";
 import { useSmartAccountContext } from "./contexts/SmartAccountContext";
 import { useWeb3AuthContext } from "./contexts/Web3AuthContext";
 import Button from "./components/Button";
+import getWallet from "./wallet";
 
 const App: React.FC = () => {
   const classes = useStyles();
   const {
-    connectWeb3,
+    // connectWeb3,
     address,
-    loading: eoaWalletLoading,
+    // loading: eoaWalletLoading,
+    disconnect,
   } = useWeb3AuthContext();
+  const [eoaWalletLoading, setEoaWalletLoading] = useState(false);
   const { loading } = useSmartAccountContext();
 
   if (!address) {
@@ -29,8 +32,15 @@ const App: React.FC = () => {
       >
         <h1 className={classes.title}>Biconomy SDK Demo</h1>
         <Button
-          title="Get Started"
-          onClickFunc={connectWeb3}
+          title="Biconomy Social Login"
+          onClickFunc={async () => {
+            setEoaWalletLoading(true);
+            const wallet = await getWallet();
+            console.log(wallet);
+            wallet.showConnectModal();
+            wallet.showWallet();
+            setEoaWalletLoading(false);
+          }}
           isLoading={eoaWalletLoading}
           style={{
             fontSize: 20,
@@ -38,8 +48,10 @@ const App: React.FC = () => {
             border: 0,
             background:
               "linear-gradient(90deg, #0063FF -2.21%, #9100FF 89.35%)",
+            marginBottom: 20,
           }}
         />
+        <button onClick={disconnect}>Disconnect</button>
         <ToastContainer />
       </div>
     );

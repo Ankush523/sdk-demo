@@ -1,9 +1,9 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { Web3Auth } from "@web3auth/web3auth";
-import { CHAIN_NAMESPACES } from "@web3auth/base";
-import { CoinbaseAdapter } from "@web3auth/coinbase-adapter";
+import { Web3AuthCore } from "@web3auth/core";
+import { WALLET_ADAPTERS, CHAIN_NAMESPACES } from "@web3auth/base";
+import { OpenloginAdapter } from "@web3auth/openlogin-adapter";
 import { ethers } from "ethers";
-import { activeChainId, getRPCProvider } from "../utils/chainConfig";
+import { activeChainId } from "../utils/chainConfig";
 
 interface web3AuthContextType {
   connectWeb3: () => Promise<void>;
@@ -32,20 +32,6 @@ export const useWeb3AuthContext = () => useContext(Web3AuthContext);
 const CLIENT_ID =
   "BEQgHQ6oRgaJXc3uMnGIr-AY-FLTwRinuq8xfgnInrnDrQZYXxDO0e53osvXzBXC1dcUTyD2Itf-zN1VEB8xZlo"; // TODO: in env
 
-const web3auth = new Web3Auth({
-  clientId: CLIENT_ID,
-  chainConfig: {
-    chainNamespace: CHAIN_NAMESPACES.EIP155,
-    chainId: ethers.utils.hexValue(activeChainId),
-    rpcTarget: getRPCProvider(activeChainId),
-  },
-});
-const coinbaseAdapter = new CoinbaseAdapter({
-  clientId: "YOUR_WEB3AUTH_CLIENT_ID",
-});
-web3auth.configureAdapter(coinbaseAdapter);
-web3auth.initModal();
-
 type StateType = {
   provider?: any;
   web3Provider?: ethers.providers.Web3Provider | null;
@@ -63,23 +49,79 @@ const initialState: StateType = {
 
 export const Web3AuthProvider = ({ children }: any) => {
   const [web3State, setWeb3State] = useState<StateType>(initialState);
+  const [web3Auth, setWeb3Auth] = useState<Web3AuthCore | null>(null);
   const { provider, web3Provider, ethersProvider, address, chainId } =
     web3State;
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  const connectWeb3 = useCallback(async () => {
+  useEffect(() => {
+    const initWeb3 = async () => {
+      const core = new Web3AuthCore({
+        clientId:
+          "BEQgHQ6oRgaJXc3uMnGIr-AY-FLTwRinuq8xfgnInrnDrQZYXxDO0e53osvXzBXC1dcUTyD2Itf-zN1VEB8xZlo",
+        chainConfig: {
+          chainNamespace: CHAIN_NAMESPACES.EIP155,
+          chainId: ethers.utils.hexValue(activeChainId),
+        },
+      });
+      console.log("web3auth", core);
+
+      const openloginAdapter = new OpenloginAdapter({
+        adapterSettings: {
+          clientId: CLIENT_ID,
+          network: "testnet",
+          uxMode: "redirect",
+          loginConfig: {
+            google: {
+              name: "Biconomy Social Login",
+              verifier: "bico-google-test",
+              typeOfLogin: "google",
+              clientId:
+                "232763728538-7o7jmud0gkfojmijb603cu37konbbn96.apps.googleusercontent.com",
+            },
+          },
+          whiteLabel: {
+            name: "Biconomy SDK",
+            logoLight:
+              "https://s2.coinmarketcap.com/static/img/coins/64x64/9543.png",
+            logoDark:
+              "https://s2.coinmarketcap.com/static/img/coins/64x64/9543.png",
+            defaultLanguage: "en",
+            dark: true,
+          },
+        },
+      });
+      core.configureAdapter(openloginAdapter);
+      console.log(core);
+      await core.init();
+      console.log(core);
+      setWeb3Auth(core);
+      if (core && core.provider) {
+        console.log(core.provider);
+      }
+    };
+    initWeb3();
+  }, [chainId]);
+
+  const connectWeb3 = async () => {
     try {
+      if (!web3Auth) return;
       setLoading(true);
-      const modalProvider = await web3auth.connect();
-      console.info("web3AuthProvider", modalProvider);
-      if (!modalProvider) return;
-      const web3Provider = new ethers.providers.Web3Provider(modalProvider);
+      const web3authProvider = await web3Auth.connectTo(
+        WALLET_ADAPTERS.OPENLOGIN,
+        {
+          loginProvider: "google",
+        }
+      );
+      console.info("web3AuthProvider", web3authProvider);
+      if (!web3authProvider) return;
+      const web3Provider = new ethers.providers.Web3Provider(web3authProvider);
       const signer = web3Provider.getSigner();
       const gotAccount = await signer.getAddress();
       const network = await web3Provider.getNetwork();
       console.info("EOA Address", gotAccount);
       setWeb3State({
-        provider: modalProvider,
+        provider: web3authProvider,
         web3Provider: web3Provider,
         ethersProvider: web3Provider,
         address: gotAccount,
@@ -90,11 +132,35 @@ export const Web3AuthProvider = ({ children }: any) => {
       setLoading(false);
       console.error({ web3AuthError: error });
     }
-  }, []);
+  };
+
+  useEffect(() => {
+    const setWAllet = async () => {
+      if (web3Auth && web3Auth.provider) {
+        setLoading(true);
+        const web3Provider = new ethers.providers.Web3Provider(
+          web3Auth.provider
+        );
+        const signer = web3Provider.getSigner();
+        const gotAccount = await signer.getAddress();
+        const network = await web3Provider.getNetwork();
+        console.info("EOA Address", gotAccount);
+        setWeb3State({
+          provider: web3Auth.provider,
+          web3Provider: web3Provider,
+          ethersProvider: web3Provider,
+          address: gotAccount,
+          chainId: Number(network.chainId),
+        });
+        setLoading(false);
+      }
+    };
+    setWAllet();
+  }, [web3Auth]);
 
   const disconnect = useCallback(async () => {
-    if (web3auth) {
-      await web3auth.logout();
+    if (web3Auth) {
+      await web3Auth.logout();
     }
     setWeb3State({
       provider: null,
@@ -103,51 +169,7 @@ export const Web3AuthProvider = ({ children }: any) => {
       address: "",
       chainId: activeChainId,
     });
-  }, []);
-
-  useEffect(() => {
-    if (web3auth.provider) {
-      console.log(web3auth.provider);
-      connectWeb3();
-    } else {
-      setLoading(false);
-    }
-  }, [chainId, connectWeb3]);
-
-  useEffect(() => {
-    if (provider?.on) {
-      const handleAccountsChanged = (accounts: string[]) => {
-        console.log("accountsChanged", accounts);
-        setWeb3State((prevState) => ({
-          ...prevState,
-          address: accounts[0],
-        }));
-      };
-
-      // https://docs.ethers.io/v5/concepts/best-practices/#best-practices--network-changes
-      // const handleChainChanged = (_hexChainId: string) => {
-      //   window.location.reload();
-      // };
-
-      const handleDisconnect = (error: { code: number; message: string }) => {
-        console.log("disconnect", error);
-        disconnect();
-      };
-
-      provider.on("accountsChanged", handleAccountsChanged);
-      // provider.on("chainChanged", handleChainChanged);
-      provider.on("disconnect", handleDisconnect);
-
-      // Subscription Cleanup
-      return () => {
-        if (provider.removeListener) {
-          provider.removeListener("accountsChanged", handleAccountsChanged);
-          // provider.removeListener("chainChanged", handleChainChanged);
-          provider.removeListener("disconnect", handleDisconnect);
-        }
-      };
-    }
-  }, [provider, disconnect]);
+  }, [web3Auth]);
 
   return (
     <Web3AuthContext.Provider
