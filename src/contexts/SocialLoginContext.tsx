@@ -58,7 +58,7 @@ export const Web3AuthProvider = ({ children }: any) => {
   useEffect(() => {
     const initWallet = async () => {
       const sdk = new SocialLogin();
-      await sdk.init(ethers.utils.hexValue(5), {
+      await sdk.init(ethers.utils.hexValue(137), {
         "https://sdk-staging.biconomy.io":
           "MEUCIQDGT4pzu8GStArnh19bG4jBrBrzI8kO5YbZg2I_ShVFigIgWXtobCl4bMNxGUgKJfCMylvM5AtGZyrZLwJ_1aGVlu4",
         "http://sdk-staging.biconomy.io":
@@ -109,7 +109,7 @@ export const Web3AuthProvider = ({ children }: any) => {
     const sdk = new SocialLogin();
     // const proof = await sdk.whitelistUrl("", "http://sdk-staging.biconomy.io");
     // console.log("proof", proof);
-    await sdk.init(ethers.utils.hexValue(5), {
+    await sdk.init(ethers.utils.hexValue(137), {
       "https://sdk-staging.biconomy.io":
         "MEUCIQDGT4pzu8GStArnh19bG4jBrBrzI8kO5YbZg2I_ShVFigIgWXtobCl4bMNxGUgKJfCMylvM5AtGZyrZLwJ_1aGVlu4",
       "http://sdk-staging.biconomy.io":

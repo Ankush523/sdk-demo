@@ -103,7 +103,20 @@ export const SmartAccountProvider = ({ children }: any) => {
           // dummy
           dappAPIKey: 'gUv-7Xh-M.aa270a76-a1aa-4e79-bab5-8d857161c561',
           // if need to override // providerUrl: 
-        }
+        },
+        {
+          chainId: ChainId.POLYGON_MUMBAI,
+          // dummy
+          dappAPIKey: '59fRCMXvk.8a1652f0-b522-4ea7-b296-98628499aee3',
+          // if need to override // providerUrl: 
+        },
+        {
+          chainId: ChainId.POLYGON_MAINNET,
+          // dummy
+          // dappAPIKey: '59fRCMXvk.8a1652f0-b522-4ea7-b296-98628499aee3',
+          // if need to override // providerUrl: 
+        },
+
       ]
       });
       console.log("wallet", wallet);

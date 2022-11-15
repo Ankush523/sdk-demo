@@ -1270,7 +1270,7 @@
     ]
   },
   "usdc": {
-    "address": "0xb5B640E6414b6DeF4FC9B3C1EeF373925effeCcF",
+    "address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
     "abi": [
       {
         "inputs": [
@@ -1836,7 +1836,7 @@
     ]
   },
   "hyphenLP": {
-    "address": "0xF9Af530Ab07796B1EC5706Fc448d315A4586Fda9",
+    "address": "0x2A5c2568b10A0E826BfA892Cf21BA7218310180b",
     "abi": [
       {
         "anonymous": false,
