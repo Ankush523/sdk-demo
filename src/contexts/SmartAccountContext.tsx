@@ -113,7 +113,7 @@ export const SmartAccountProvider = ({ children }: any) => {
         {
           chainId: ChainId.POLYGON_MAINNET,
           // dummy
-          // dappAPIKey: '59fRCMXvk.8a1652f0-b522-4ea7-b296-98628499aee3',
+          dappAPIKey: '35BVLBEUZ.237627a0-9db9-4d07-87de-9e1548eef8ce',
           // if need to override // providerUrl: 
         },
 
