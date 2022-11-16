@@ -56,7 +56,7 @@ const AddLPForward: React.FC = () => {
       );
       const approveUSDCTx = await usdcContract.populateTransaction.approve(
         config.hyphenLP.address,
-        ethers.BigNumber.from("1000000")
+        ethers.BigNumber.from("100000")
       );
       const tx1 = {
         to: config.usdc.address,
@@ -67,7 +67,7 @@ const AddLPForward: React.FC = () => {
       const hyphenLPTx =
         await hyphenContract.populateTransaction.addTokenLiquidity(
           config.usdc.address,
-          ethers.BigNumber.from("1000000")
+          ethers.BigNumber.from("100000")
         );
 
       const tx2 = {
@@ -132,7 +132,7 @@ const AddLPForward: React.FC = () => {
 
       const approveUSDCTx = await usdcContract.populateTransaction.approve(
         config.hyphenLP.address,
-        ethers.BigNumber.from("1000000")
+        ethers.BigNumber.from("100000")
       );
       const tx1 = {
         to: config.usdc.address,
@@ -143,7 +143,7 @@ const AddLPForward: React.FC = () => {
       const hyphenLPTx =
         await hyphenContract.populateTransaction.addTokenLiquidity(
           config.usdc.address,
-          ethers.BigNumber.from("1000000")
+          ethers.BigNumber.from("100000")
         );
       const tx2 = {
         to: config.hyphenLP.address,
