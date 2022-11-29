@@ -17,7 +17,7 @@ export const getEOAWallet = (privateKey: string, provider: any) => {
   if (!provider) {
     // TODO
     // Fetch rpc url as per active chain id
-    provider = "https://rpc.ankr.com/polygon_mumbai";
+    provider = "https://data-seed-prebsc-1-s1.binance.org:8545/";
     // provider = ""
   }
 

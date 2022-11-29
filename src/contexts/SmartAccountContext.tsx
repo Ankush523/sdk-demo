@@ -17,6 +17,7 @@ export const ChainId = {
   GOERLI: 5,
   POLYGON_MUMBAI: 80001,
   POLYGON_MAINNET: 137,
+  BNB_TESTNET: 97
 };
 
 // Types
@@ -107,6 +108,10 @@ export const SmartAccountProvider = ({ children }: any) => {
         {
           chainId: ChainId.POLYGON_MAINNET,
           // dappAPIKey: todo
+        },
+        {
+          chainId: ChainId.BNB_TESTNET,
+          providerUrl: 'https://data-seed-prebsc-1-s1.binance.org:8545/'
         }
       ]
       });
